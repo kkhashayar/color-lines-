@@ -1,14 +1,17 @@
 import turtle, random, math, time
 from pygame import mixer
 
+#Screen setup 
 screen = turtle.Screen()
 screen.setup(700,700,0)
 screen.bgcolor("black")
 
+# starting the audio mixer, and sound files
 mixer.init()
 dropping = mixer.Sound("dropping.wav")
 cleaning = mixer.Sound("Decline.wav")
 player = mixer.Sound("jumpland.wav")
+
 p2 = turtle.Turtle()
 p2.hideturtle()
 p2.penup()
@@ -18,24 +21,26 @@ p2.setpos(0, -240)
 p2.shape("classic")
 
 
-
+#Class game holds Graphic attribs and game attribs 
 class Game(turtle.Turtle):
     def __init__(self):
         turtle.Turtle.__init__(self)
+        # constants
         self.distance = 40
         self.space = 5
         self.row = 9
         self.col = 9
+        # board 
         self.board = []
         self.empty_positions = []
         self.taken_positions = []
-        self.elements =[1,3,5,9]
+        self.elements =[1,3,5,9]# each number represent a color
         self.element = 0 # for picking 
         #self.element = True 
         self.computer_switch = True
         self.count = 0
         self.count_reset = 0 
-        #-- Class internal attribs
+        #-- Class internal attribs (graphics)
         self.penup()
         self.speed(0)
         self.pencolor("yellow")
@@ -48,24 +53,25 @@ class Game(turtle.Turtle):
         self.temp_board = []
         # For on screen texts
         self.score = 0 
-
+    # Reset the mouse event and pick the item
     def reset_pick(self):
         turtle.onscreenclick(self.pick)
+    # Reset the mouse event and drop the item 
     def reset_drop(self):
         turtle.onscreenclick(self.drop)
-
+    # Building a 2D array 
     def build_board(self):
         for r in range(self.row):
             self.board.append([])
             for c in range(self.col):
                 self.board[r].append(0)
-
+    # text base board (to visualize back end operation)
     def print_board(self):
         print("************************")
         for r in range(self.row):
             print(self.board[r], end = "")
             print()
-
+    # Graphical board 
     def show_board(self):
         screen.tracer(False)
         for r in range(self.row):
@@ -79,9 +85,9 @@ class Game(turtle.Turtle):
             self.left(90)
             self.hideturtle()
         #print("lenght of empty positions: ", len(self.empty_positions))
+    
     # i try to convert the x,y  position to row,col
-    # which is working but i think its very primitive way of doing it :(
-
+    # which is working but i think its very primitive way of doing it :
     def delete_x_y(self, r,c):
         if r == 0:
             y = 280
@@ -171,7 +177,7 @@ class Game(turtle.Turtle):
         global row, col
         return row
         return col
-                
+    # drops 3 balls with random colors on the board           
     def computer_move(self):
         for i in range(3):
             if self.computer_switch is True:
@@ -184,7 +190,7 @@ class Game(turtle.Turtle):
                 self.setpos(250, 200)
                 self.speed(3)
                 self.showturtle()
-
+                # Converting the random numbers to color
                 if element == 1:
                     self.color("lightblue")
                     self.fillcolor("blue")
@@ -200,7 +206,7 @@ class Game(turtle.Turtle):
                 #--
                 row = random.randrange(0,9)
                 col = random.randrange(0,9)
-
+                #-- Converts the position on 2D array to position on graphical board 
                 if row == 0:
                     y = 280
                 if row == 1:
@@ -238,7 +244,7 @@ class Game(turtle.Turtle):
                     x = 0
                 if col == 8:
                     x = 40
-        
+                #-- Checks if new spot is taken or or not
                 if self.board[row][col] == 0:
                     self.count +=1
                     self.board[row][col] = element
@@ -260,9 +266,8 @@ class Game(turtle.Turtle):
 ##        print("lenght of taken positions: ", len(self.taken_positions))
         #self.reset_pick()
 
-        
+    # Method to check win positions (Im sure there are much better ways to write this method!)
     def check_win(self, element):
-    
         # check horizontal
         for c in range(self.col -3):
             for r in range(self.row):
@@ -340,7 +345,7 @@ class Game(turtle.Turtle):
                     
         if self.computer_switch == False:
             self.reset_pick()
-                  
+    # Pick method. to pick a ball from graphical board            
     def pick(self, x,y):
         # choosing the spot and picking the color 
 ##        print("**********")
@@ -348,6 +353,9 @@ class Game(turtle.Turtle):
         x = int(self.distance * round(x/self.distance))
         y = int(self.distance * round(y/self.distance))
         #print("position on Gboard: ",x,y)
+        
+        # Converting the position on graphical board to position on 2D array
+        #--- (Should be better way, shorter way)
         if y == 280:
             row = 0
         if y == 240:
@@ -423,13 +431,13 @@ class Game(turtle.Turtle):
             self.temp_board.append(row)
             self.temp_board.append(col)
             self.reset_drop()
-
-    
-    def reset_pick(self):
+    # Reset mouse event and pick
+    def reset_pik(self):
         turtle.onscreenclick(self.pick)
+    # Reset mouse event and drop 
     def reset_drop(self):
         turtle.onscreenclick(self.drop)
-               
+    # Drop the choosen color to new position on the graphical board         
     def drop(self, xd,yd):
 ##        print("***********")
 ##        print("dropping  method")
@@ -491,6 +499,7 @@ class Game(turtle.Turtle):
             self.reset_pick()
         # so now i have check win problem and path finding problem,
         # path finding problem
+        
         if self.board[row][col] == 0:
             self.board[row][col] = self.element
             self.board[self.temp_board[0]][self.temp_board[1]] = 0
@@ -509,6 +518,7 @@ class Game(turtle.Turtle):
             self.check_win(element)
             self.computer_move()
 
+# Setting the font 
 font_bold = ("arial", "18", "bold")
 font_normal = ("arial", "14", "bold")
 def static_text():
@@ -521,17 +531,7 @@ def static_text():
     p1.shape("classic")
     p1.write("score", font = font_bold)
 
-##def dinamic_text(game):
-##    p2 = turtle.Turtle()
-##    p2.hideturtle()
-##    p2.penup()
-##    p2.color("yellow")
-##    p2.speed(0)
-##    p2.setpos(0, -240)
-##    p2.shape("classic")
-##    p2.clear()
-##    p2.write(game.score, font = font_normal)
-
+    
 game = Game()
 game.build_board()
 game.show_board()
